@@ -1,4 +1,4 @@
-name: Azure Deployment
+name: 'Terraform Deploy'
 
 on:
   push:
@@ -6,27 +6,25 @@ on:
       - main
 
 jobs:
-  deploy:
+  terraform:
     runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
         uses: actions/checkout@v2
 
-      - name: Login to Azure
-        uses: azure/login@v1
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v1
         with:
-          tenant-id: a821faec-cd05-4ecf-a7d8-eba7eee014bd
-          subscription-id: eeae8ca6-4e89-4182-b885-937dd6251ff3
-          client-id: e7d3659f-20f6-4255-bf81-751fc7f95812
-          auth-type: IDENTITY
-          environment: azurecloud
-          enable-AzPSSession: false
-          allow-no-subscriptions: false
-          audience: api://AzureADTokenExchange
-        env:
-          AZURE_LOG_LEVEL: debug
-          TERRAFORM_CLI_PATH: /home/runner/work/_temp/$(uuidgen)
+          terraform_version: 1.0.0
+
+      - name: Install Azure CLI
+        run: |
+          curl -sL https://aka.ms/InstallAzureCLIDeb | sudo bash
+
+      - name: Azure CLI Login
+        run: |
+          az login --identity
 
       - name: Terraform Init
         run: terraform init
