@@ -7,7 +7,7 @@ on:
 
 jobs:
   terraform:
-    runs-on: [self-hosted, azure-vm]
+    runs-on: ubuntu-latest
 
     steps:
       - name: Checkout code
@@ -18,9 +18,9 @@ jobs:
         with:
           terraform_version: 1.0.0
 
-      - name: Azure CLI Login
+      - name: Azure Login
         run: |
-          az login --identity
+          az login --identity --username ${{ secrets.AZURE_CLIENT_ID }}
 
       - name: Terraform Init
         run: terraform init
