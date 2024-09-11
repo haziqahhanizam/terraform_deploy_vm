@@ -1,4 +1,4 @@
-name: 'Terraform Deploy'
+name: Deploy to Azure
 
 on:
   push:
@@ -6,29 +6,24 @@ on:
       - main
 
 jobs:
-  terraform:
+  deploy:
     runs-on: ubuntu-latest
 
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v2
+    - name: Checkout code
+      uses: actions/checkout@v3
 
-      - name: Setup Terraform
-        uses: hashicorp/setup-terraform@v1
-        with:
-          terraform_version: 1.0.0
+    - name: Azure Login
+      uses: azure/login@v1
+      with:
+        tenant-id: ${{ secrets.AZURE_TENANT_ID }}
+        subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
+        auth-type: IDENTITY
+        environment: azurecloud
+        enable-AzPSSession: false
+        allow-no-subscriptions: false
+        audience: api://AzureADTokenExchange
+      env:
+        TERRAFORM_CLI_PATH: /home/runner/work/_temp/$(uuidgen)
 
-      - name: Azure Login
-        uses: azure/login@v1
-        with:
-          tenant-id: ${{ secrets.AZURE_TENANT_ID }}
-          subscription-id: ${{ secrets.AZURE_SUBSCRIPTION_ID }}
-          client-id: ${{ secrets.MANAGED_IDENTITY_CLIENT_ID }}
-          auth-type: IDENTITY
-          environment: azurecloud
-
-      - name: Terraform Init
-        run: terraform init
-
-      - name: Terraform Apply
-        run: terraform apply -auto-approve
+    # Add steps for Terraform or other deployments here
